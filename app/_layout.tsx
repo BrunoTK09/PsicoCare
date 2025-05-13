@@ -1,9 +1,10 @@
-import { Slot } from 'expo-router';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { ThemeProvider, DarkTheme } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -12,11 +13,36 @@ export default function Layout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
+  const segments = useSegments();
+  const router = useRouter();
+
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) return null;
+  // Verifica se há token salvo
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('token');
+      setIsAuth(!!token);
+    };
+    checkAuth();
+  }, []);
+
+  // Redirecionamento automático com base na auth
+  useEffect(() => {
+    if (isAuth === null) return;
+
+    const inLoginGroup = segments[0] !== '(tabs)';
+    if (!isAuth && !inLoginGroup) {
+      router.replace('/login');
+    } else if (isAuth && inLoginGroup) {
+      router.replace('/(tabs)');
+    }
+  }, [isAuth, segments]);
+
+  if (!fontsLoaded || isAuth === null) return null;
 
   return (
     <ThemeProvider value={DarkTheme}>
