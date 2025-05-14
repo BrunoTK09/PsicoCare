@@ -1,17 +1,25 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Link } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, Link } from 'expo-router';
 import { login } from '../lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const router = useRouter();
 
   const handleLogin = async () => {
+    if (!email || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos.');
+      return;
+    }
+
     try {
-      const data = await login(email, senha);
+      const data = await login({ email, senha });
+      await AsyncStorage.setItem('token', data.token);
       Alert.alert('Sucesso', `Bem-vindo, ${data.nome || 'usuário'}`);
-      // Você pode salvar o token com async storage ou navegar
+      router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert('Erro', error.message || 'Falha no login');
     }
@@ -46,6 +54,7 @@ export default function Login() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
