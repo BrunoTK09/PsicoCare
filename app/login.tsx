@@ -1,13 +1,26 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter, Link } from 'expo-router';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { login } from '../lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const router = useRouter();
+
+  const verify = async () => {
+    const token = await AsyncStorage.getItem('token');
+    if (token) {
+      router.replace('/(tabs)');
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      verify();
+    }, [])
+  );
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -19,6 +32,7 @@ export default function Login() {
       const data = await login({ email, senha });
       await AsyncStorage.setItem('token', data.token);
       Alert.alert('Sucesso', `Bem-vindo, ${data.nome || 'usuário'}`);
+
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert('Erro', error.message || 'Falha no login');
