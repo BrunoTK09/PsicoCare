@@ -45,11 +45,9 @@ Contribuições são bem-vindas! Para colaborar:
 5. Abra um **Pull Request** para revisão.
 
 ## Autores
-- **Eder Freitas Muniz**
 - **Miguel Arcanjo Buglio**
 - **Bruno Mammana**
 - **Gabriel Carvalho de Araujo**
 - **Marcelo André A. da C. Jr**
 - **Victor Marques Ghion**
-- **Daniel Pedroso Lei**
 
